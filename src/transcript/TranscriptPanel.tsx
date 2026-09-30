@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react'
+import { useAutoScroll } from './hooks/useAutoScroll.ts'
 import { TranscriptLine } from './TranscriptLine.tsx'
 import type { Cue } from './types.ts'
 import styles from './TranscriptPanel.module.css'
@@ -13,14 +15,50 @@ export interface TranscriptPanelProps {
   onSeek: (time: number) => void
 }
 
-/** Presentational transcript: the scrollable list of cues, or a loading,
- * error or empty message. */
+/** Transcript: the scrollable list of cues, or a loading, error or empty
+ * message. Keeps the active line in view unless the user is scrolling, and
+ * offers a button to resume. */
 export function TranscriptPanel(props: TranscriptPanelProps) {
+  const { activeIndex, onSeek } = props
+  const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
+  const { paused, resume, hold, release } = useAutoScroll(scroller, activeIndex)
+
+  // Seeking to a line also resumes auto-scroll. No scroll now: the active
+  // line is about to change, and auto-scroll follows it when it does.
+  const handleSeek = useCallback(
+    (time: number) => {
+      resume({ scroll: false })
+      onSeek(time)
+    },
+    [resume, onSeek],
+  )
+
+  // The button unmounts once resumed, so move focus into the transcript
+  // rather than letting it drop to the page.
+  const handleResume = () => {
+    resume()
+    const target = scroller?.querySelector<HTMLElement>('[aria-current="true"]') ?? scroller
+    target?.focus({ preventScroll: true })
+  }
+
   return (
     <section className={styles.panel} aria-label="Transcript">
-      <div className={styles.scroller}>
-        <TranscriptBody {...props} />
+      {/* tabIndex -1: focusable by script, for when no line is active. */}
+      <div ref={setScroller} className={styles.scroller} tabIndex={-1}>
+        <TranscriptBody {...props} onSeek={handleSeek} />
       </div>
+      {paused && (
+        // While focused, stay paused: the user is about to press it.
+        <button
+          type="button"
+          className={styles.resume}
+          onClick={handleResume}
+          onFocus={hold}
+          onBlur={release}
+        >
+          Resume auto-scroll
+        </button>
+      )}
     </section>
   )
 }

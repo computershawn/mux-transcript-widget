@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, test, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
+import { RESUME_DELAY_MS } from './hooks/useAutoScroll.ts'
 import { TranscriptPanel } from './TranscriptPanel.tsx'
 import type { Cue } from './types.ts'
 
@@ -15,6 +16,18 @@ function renderPanel(props: Partial<Parameters<typeof TranscriptPanel>[0]> = {})
   render(<TranscriptPanel status="ready" cues={cues} activeIndex={-1} onSeek={onSeek} {...props} />)
   return { onSeek }
 }
+
+// jsdom doesn't implement Element#scrollTo, which auto-scroll calls.
+beforeAll(() => {
+  Element.prototype.scrollTo = vi.fn()
+})
+afterAll(() => {
+  delete (Element.prototype as Partial<Element>).scrollTo
+})
+afterEach(() => {
+  vi.mocked(Element.prototype.scrollTo).mockClear()
+  vi.useRealTimers()
+})
 
 describe('TranscriptPanel', () => {
   test('renders a line per cue with its start time', () => {
@@ -71,5 +84,55 @@ describe('TranscriptPanel', () => {
   test('is labelled as the transcript region', () => {
     renderPanel()
     expect(screen.getByRole('region', { name: 'Transcript' })).toBeInTheDocument()
+  })
+
+  test('scrolling the panel shows a button that resumes auto-scroll', async () => {
+    renderPanel({ activeIndex: 0 })
+    expect(screen.queryByRole('button', { name: 'Resume auto-scroll' })).not.toBeInTheDocument()
+
+    fireEvent.wheel(screen.getByRole('list'))
+    await userEvent.click(screen.getByRole('button', { name: 'Resume auto-scroll' }))
+    expect(screen.queryByRole('button', { name: 'Resume auto-scroll' })).not.toBeInTheDocument()
+  })
+
+  test('clicking a line while paused seeks and resumes, without scrolling back to the old line', async () => {
+    const { onSeek } = renderPanel({ activeIndex: 0 })
+    fireEvent.wheel(screen.getByRole('list'))
+    vi.mocked(Element.prototype.scrollTo).mockClear()
+
+    await userEvent.click(screen.getByRole('button', { name: /Third line/ }))
+    expect(onSeek).toHaveBeenCalledExactlyOnceWith(65)
+    expect(screen.queryByRole('button', { name: 'Resume auto-scroll' })).not.toBeInTheDocument()
+    expect(Element.prototype.scrollTo).not.toHaveBeenCalled()
+  })
+
+  test('the resume button moves focus to the active line', async () => {
+    renderPanel({ activeIndex: 1 })
+    fireEvent.wheel(screen.getByRole('list'))
+    await userEvent.click(screen.getByRole('button', { name: 'Resume auto-scroll' }))
+    expect(screen.getByRole('button', { current: true })).toHaveFocus()
+  })
+
+  test('with no active line, the resume button moves focus to the scroll area', async () => {
+    renderPanel({ activeIndex: -1 })
+    const list = screen.getByRole('list')
+    fireEvent.wheel(list)
+    await userEvent.click(screen.getByRole('button', { name: 'Resume auto-scroll' }))
+    expect(list.parentElement).toHaveFocus()
+  })
+
+  test('stays paused while the resume button has focus', () => {
+    vi.useFakeTimers()
+    renderPanel({ activeIndex: 0 })
+    fireEvent.wheel(screen.getByRole('list'))
+    const resumeButton = screen.getByRole('button', { name: 'Resume auto-scroll' })
+
+    act(() => resumeButton.focus())
+    act(() => vi.advanceTimersByTime(RESUME_DELAY_MS * 2))
+    expect(resumeButton).toBeInTheDocument()
+
+    act(() => resumeButton.blur())
+    act(() => vi.advanceTimersByTime(RESUME_DELAY_MS))
+    expect(resumeButton).not.toBeInTheDocument()
   })
 })

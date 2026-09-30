@@ -34,8 +34,8 @@ Props for `TranscriptWidget`: `playbackId`, `trackId`, optional `vttUrl`, and pa
 
 ## Time → cue sync
 - **Time source (`useActiveCueIndex`):** `timeupdate` only fires about 4 times a second, which makes the highlight lag. Instead:
-  - While `playing`, read `currentTime` in a `requestAnimationFrame` loop.
-  - On `pause`, `seeked`, `timeupdate` and `loadedmetadata`, read it once.
+  - While `playing`, read `currentTime` in a `requestAnimationFrame` loop. Stop the loop on `pause` or `ended`.
+  - On `pause`, `ended`, `seeked`, `timeupdate` and `loadedmetadata`, read it once.
   - Only call `setState` when the active cue *index* changes, not on every frame. To do that, compute the index inside the loop (the hook takes the cues and returns `activeIndex`) so the panel doesn't re-render at 60fps.
 - **Lookup (`findActiveCue`):**
   - Cues are sorted by start time. Binary search for the last cue with `start <= t`; it's active if `t < end`.
@@ -60,8 +60,8 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 | 1 | `transcript/s1-parse-vtt` | Merged (#4) |
 | 2 | `transcript/s2-find-active-cue` | Merged (#5) |
 | 3 | `transcript/s3-vtt-fetch` | Merged (#6) |
-| 4 | `transcript/s4-transcript-panel` | In review |
-| 5 | `transcript/s5-active-cue-sync` | To do |
+| 4 | `transcript/s4-transcript-panel` | Merged (#7) |
+| 5 | `transcript/s5-active-cue-sync` | In review |
 | 6 | `transcript/s6-auto-scroll` | To do |
 | 7 | `transcript/s7-widget` | To do |
 | 8 | `transcript/s8-demo` | To do |
@@ -84,7 +84,7 @@ Update the Status column in each step's PR.
 2. **`findActiveCue`** + tests: before the first cue, exact start/end boundaries, gaps, overlapping cues, after the last cue, empty list.
 3. **`muxUrls` + `useVttCues`** + tests (mocked `fetch`): loading → ready, HTTP error → error state, the request is aborted when the URL changes, and a late response from a stale URL is ignored.
 4. **`TranscriptPanel` / `TranscriptLine`** (presentational), plus a `formatTime` helper for the timestamps, + tests: renders the lines, highlights `aria-current` for `activeIndex`, clicking calls `onSeek(cue.start)`, loading/error/empty states. Add `TranscriptPanel.module.css`, with the highlight keyed on `[aria-current="true"]`; tests query by role and `aria-current`, never by class name.
-5. **`useActiveCueIndex`** + tests: use a real `<video>` element, stub `currentTime` and dispatch events. Check that the active index updates on `seeked`/`timeupdate`, doesn't re-render while the index is unchanged, and that the rAF loop is cleaned up on `pause` and unmount.
+5. **`useActiveCueIndex`** + tests: use a real `<video>` element, stub `currentTime` and dispatch events. Check that the active index updates on `seeked`/`timeupdate`, doesn't re-render while the index is unchanged, and that the rAF loop is cleaned up on `pause`, `ended` and unmount.
 6. **`useAutoScroll`** + tests (fake timers, spied `scrollTo`): scrolls when the active index changes, pauses on `wheel`/`touchstart`, resumes after 4s, and resumes immediately via the button or a seek. Wire it into `TranscriptPanel` with the "Resume auto-scroll" button.
 7. **`TranscriptWidget` integration:**
    - Install `@mux/mux-player-react`.

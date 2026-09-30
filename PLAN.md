@@ -56,8 +56,8 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 | Step | Branch | Status |
 |---|---|---|
 | Plan + workflow docs | `transcript/plan-and-workflow` | Merged (#2) |
-| 0 | `transcript/s0-test-tooling` | In review |
-| 1 | `transcript/s1-parse-vtt` | To do |
+| 0 | `transcript/s0-test-tooling` | Merged (#3) |
+| 1 | `transcript/s1-parse-vtt` | In review |
 | 2 | `transcript/s2-find-active-cue` | To do |
 | 3 | `transcript/s3-vtt-fetch` | To do |
 | 4 | `transcript/s4-transcript-panel` | To do |

@@ -23,7 +23,12 @@ The widget is delivered as a series of small PRs, one per `PLAN.md` step, so eac
 
 - `feature/transcript-widget` is cut from `main`. Step PRs merge into it; when every step is done, one final PR merges it into `main`.
 - Each step gets a branch named `transcript/s<N>-<slug>` (the names are listed in `PLAN.md`), cut from the up-to-date feature branch, with its PR targeting `feature/transcript-widget`. Step branches can't live under `feature/transcript-widget/…`, because git can't have a branch named both `feature/transcript-widget` and `feature/transcript-widget/<something>`.
-- Do **one step at a time**. Open the step's PR, then stop. Start the next step only after the user has merged the previous PR and asked for it. "Continue" or "resume" means the next step, not the rest of the plan.
+- Do **one step at a time**, and have the user review it locally before anything is pushed:
+  1. Create the step branch, implement the step, and make sure tests, lint and build pass.
+  2. Stage the changes (`git add`) and **stop without committing or pushing**. The user reviews the staged diff in VS Code's Source Control view (or with `git diff --cached`).
+  3. Answer questions and make requested changes, staging them too.
+  4. Only after the user approves: commit, push, and open the PR.
+- Start the next step only after the user has merged the previous PR and asked for it. "Continue" or "resume" means the next step, not the rest of the plan.
 - Keep each PR to that step's scope. If a step's diff grows past about 300 lines (excluding `package-lock.json`), propose splitting it.
 - Merge with merge commits, not squash, so branches cut before a merge stay valid without rebasing.
 - There's no CI. Before pushing, `npm test`, `npm run lint` and `npm run build` must all pass; say so in the PR description.

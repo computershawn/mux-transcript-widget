@@ -55,16 +55,16 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 
 | Step | Branch | Status |
 |---|---|---|
-| Plan + workflow docs | `transcript/plan-and-workflow` | In review |
-| 0 | `transcript/step-0-test-tooling` | To do |
-| 1 | `transcript/step-1-parse-vtt` | To do |
-| 2 | `transcript/step-2-find-active-cue` | To do |
-| 3 | `transcript/step-3-vtt-fetch` | To do |
-| 4 | `transcript/step-4-transcript-panel` | To do |
-| 5 | `transcript/step-5-active-cue-sync` | To do |
-| 6 | `transcript/step-6-auto-scroll` | To do |
-| 7 | `transcript/step-7-widget` | To do |
-| 8 | `transcript/step-8-demo` | To do |
+| Plan + workflow docs | `transcript/plan-and-workflow` | Merged (#2) |
+| 0 | `transcript/s0-test-tooling` | In review |
+| 1 | `transcript/s1-parse-vtt` | To do |
+| 2 | `transcript/s2-find-active-cue` | To do |
+| 3 | `transcript/s3-vtt-fetch` | To do |
+| 4 | `transcript/s4-transcript-panel` | To do |
+| 5 | `transcript/s5-active-cue-sync` | To do |
+| 6 | `transcript/s6-auto-scroll` | To do |
+| 7 | `transcript/s7-widget` | To do |
+| 8 | `transcript/s8-demo` | To do |
 
 Update the Status column in each step's PR.
 

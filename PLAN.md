@@ -17,7 +17,7 @@ The widget needs no changes to switch videos:
 Some state would carry over from the previous video: whether `useAutoScroll` has auto-scroll paused, and the panel's scroll position. The demo renders `<TranscriptWidget key={playbackId} …>`, so each video gets a fresh widget.
 
 ## Design
-- **`VideoPicker`** (`src/VideoPicker.tsx` + `VideoPicker.module.css`): part of the demo, not of `src/transcript/`. It's a list of `<button>`s, each showing a thumbnail (`<img alt="">`) with the title as the button's label. The selected one has `aria-pressed="true"`, and the CSS styles the highlight from that attribute, as the transcript does with `aria-current`. Props: `videos`, `selectedId`, `onSelect`. The selected state uses `--tw-accent`, so the demo's accent picker restyles it too.
+- **`VideoPicker`** (`src/VideoPicker.tsx` + `VideoPicker.module.css`): part of the demo, not of `src/transcript/`. It's a grid of `<button>`s, each showing a thumbnail (`<img alt="">`) with the title as the button's label. The selected one has `aria-pressed="true"`, and the CSS styles the highlight from that attribute, as the transcript does with `aria-current`. Props: `videos` (`{ id, title, thumbnailUrl }[]`), `selectedId`, `onSelect(id)`. The picker takes ready-made thumbnail URLs rather than building them, so it doesn't depend on Mux; `App` maps `VIDEOS` to that shape. The selected state uses `--tw-accent`, which the demo sets on the element wrapping both the widget and the picker, so both share one accent.
 - **Video list:** `src/videos.ts` exports `VIDEOS: Video[]`, where each `Video` is `{ playbackId, trackId, title }`. Playback is public, so the IDs aren't secrets and are committed.
 - **Thumbnails:** `thumbnailUrl(playbackId, { width })` in `src/transcript/lib/muxUrls.ts` returns `https://image.mux.com/{playbackId}/thumbnail.webp?width=…`. Check the Mux image docs for its parameters before relying on them.
 
@@ -26,8 +26,8 @@ Each step below ships as its own PR into `feature/video-playlist`, one at a time
 
 | Step | Branch | Status |
 |---|---|---|
-| 0 | `playlist/plan-and-workflow` | In review |
-| 1 | `playlist/s1-picker-ui` | Not started |
+| 0 | `playlist/plan-and-workflow` | Merged (#14) |
+| 1 | `playlist/s1-picker-ui` | In review |
 | 2 | `playlist/s2-switching` | Not started |
 | Final merge into `main` | `feature/video-playlist` | Not started |
 
@@ -40,25 +40,23 @@ Update the Status column in each step's PR.
    - Point the README at both plans.
 1. **Picker look, with dummy content:**
    - Add `VideoPicker` and its CSS, and render it in `App.tsx` under the existing widget, which still reads the env vars.
-   - Feed it a hard-coded list of 4–6 dummy entries, with placeholder titles and thumbnails. One starts selected; clicking another only moves the highlight.
+   - Feed it a hard-coded list of 6 dummy entries, with placeholder titles (one long, one short) and `picsum.photos` images as thumbnails. One starts selected; clicking another only moves the highlight.
    - Settle the look in the browser:
      - layout under the player, and how it wraps at narrow widths
      - thumbnail size
      - truncation of long titles
      - the selected, hover and focus-visible states
-     - how it looks with different accent colors
-   - Tests: there's one button per video, labelled with its title, and the selected one has `aria-pressed="true"`.
+   - Remove the demo's width dropdown and accent color picker: the widget is capped at 960px wide (narrower windows still shrink it) and the accent is hard-coded to `#6600ff`.
+   - Tests: there's one button per video, labelled with its title; only the selected one has `aria-pressed="true"`; and clicking one calls `onSelect` with its ID.
 2. **Real data + switching:**
-   - Add `src/videos.ts` with real assets, plus `thumbnailUrl` with tests in `muxUrls.test.ts`. Replace the dummy list with them.
+   - Add `src/videos.ts` with real assets, plus `thumbnailUrl` with tests in `muxUrls.test.ts`. Replace the dummy list with `VIDEOS` mapped to the picker's shape.
    - `App` keeps the selected playback ID in state, starting at `VIDEOS[0]`. It passes that video's IDs and title (`metadata.video_title`) to `<TranscriptWidget key={playbackId}>`. `onSelect` updates the state.
    - Remove the env vars: `.env.example`, their types in `src/vite-env.d.ts`, the setup screen in `App.tsx` and the README's setup instructions. If the list is empty, the page shows a short message instead.
-   - Tests:
-     - Clicking a thumbnail calls `onSelect` with its playback ID.
-     - In `TranscriptWidget.test.tsx`, rerendering with a new `trackId` fetches the new VTT and shows its cues.
+   - Tests: in `TranscriptWidget.test.tsx`, rerendering with a new `trackId` fetches the new VTT and shows its cues.
 
 ## Verification
 - After every step, `npm test` passes and `npm run lint` and `npm run build` are clean.
-- Step 1: with `npm run dev`, check the picker at each width in the demo's dropdown and with a few accent colors, and tab through the thumbnails to check the focus styles.
+- Step 1: with `npm run dev`, check the picker at full width and in a narrow window, and tab through the thumbnails to check the focus styles.
 - Step 2: with `npm run dev` and 2–3 real public assets:
   - The first video loads on mount.
   - Clicking another thumbnail swaps both the video and the transcript.

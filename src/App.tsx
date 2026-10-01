@@ -1,18 +1,32 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { TranscriptWidget } from './transcript/TranscriptWidget.tsx'
+import { VideoPicker } from './VideoPicker.tsx'
+import type { PickerVideo } from './VideoPicker.tsx'
 
 const playbackId = import.meta.env.VITE_MUX_PLAYBACK_ID
 const trackId = import.meta.env.VITE_MUX_TRACK_ID
 
-const DEFAULT_ACCENT = '#fa50b5'
-/** Widths to try the widget at; under 700px it stacks. */
-const WIDTHS = [320, 480, 640, 800, 960, 1120]
+const ACCENT_COLOR = '#6600ff'
+const WIDGET_WIDTH = 960
 
-/** Demo page: the widget, plus controls for checking the stacked layout and
- * the accent color by hand. */
+/** Placeholder entries for settling the picker's look; real videos come later. */
+const DUMMY_VIDEOS: PickerVideo[] = [
+  'Getting started with Mux Video',
+  'Building a synced transcript',
+  'A much longer title, to check how the picker truncates text that runs past two lines',
+  'Theming with CSS custom properties',
+  'Container queries in practice',
+  'Short',
+].map((title, i) => ({
+  id: `dummy-${i}`,
+  title,
+  thumbnailUrl: `https://picsum.photos/seed/mux-${i}/320/180`,
+}))
+
+/** Demo page: the widget, with a picker of videos under it. */
 function App() {
-  const [width, setWidth] = useState(960)
-  const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT)
+  const [selectedId, setSelectedId] = useState(DUMMY_VIDEOS[0]?.id)
 
   if (!playbackId || !trackId) {
     return (
@@ -29,33 +43,15 @@ function App() {
   return (
     <main>
       <h1>Transcript Widget with Mux Video</h1>
-      <form className="controls" onSubmit={(event) => event.preventDefault()}>
-        <label>
-          Widget width
-          <select value={width} onChange={(event) => setWidth(Number(event.target.value))}>
-            {WIDTHS.map((value) => (
-              <option key={value} value={value}>
-                {value}px
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Accent color
-          <input
-            type="color"
-            value={accentColor}
-            onChange={(event) => setAccentColor(event.target.value)}
-          />
-        </label>
-      </form>
-      <div style={{ maxWidth: width }}>
+      {/* --tw-accent here, not just on the widget, so the picker shares it. */}
+      <div style={{ maxWidth: WIDGET_WIDTH, '--tw-accent': ACCENT_COLOR } as CSSProperties}>
         <TranscriptWidget
           playbackId={playbackId}
           trackId={trackId}
-          accentColor={accentColor}
+          accentColor={ACCENT_COLOR}
           metadata={{ video_title: 'Transcript widget demo' }}
         />
+        <VideoPicker videos={DUMMY_VIDEOS} selectedId={selectedId} onSelect={setSelectedId} />
       </div>
     </main>
   )

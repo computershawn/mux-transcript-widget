@@ -1,0 +1,72 @@
+/* Uses the widget's --tw-accent, so set it on a shared ancestor.
+   --vp-thumb-radius sets the thumbnails' corner radius. */
+
+.picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.thumbnail {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--vp-thumb-radius, 4px);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  transition: opacity 0.15s;
+}
+
+.item:hover .thumbnail {
+  opacity: 0.85;
+}
+
+.item:focus-visible {
+  outline: none;
+}
+
+.item:focus-visible .thumbnail {
+  outline: 2px solid var(--tw-accent, #fa50b5);
+  outline-offset: 2px;
+}
+
+.title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.9em;
+  line-height: 1.35;
+}
+
+/* Keyed on aria-pressed so the visual and accessible state can't drift apart. */
+.item[aria-pressed='true'] .thumbnail {
+  box-shadow: 0 0 0 3px var(--tw-accent, #fa50b5);
+}
+
+.item[aria-pressed='true'] .title {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumbnail {
+    transition: none;
+  }
+}

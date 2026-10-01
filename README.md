@@ -1,32 +1,108 @@
-# React + TypeScript + Vite
+# Mux transcript widget
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React component that shows a [Mux Player](https://www.mux.com/docs/guides/mux-player-web) with a synced transcript beside it.
 
-Currently, two official plugins are available:
+- The line being spoken is highlighted as the video plays.
+- Clicking a line seeks the video to it.
+- The transcript scrolls to keep the active line in view. Scrolling it yourself pauses that; it resumes after 4 seconds, when you click "Resume auto-scroll", or when you click a line.
+- When the widget is narrower than 700px, the transcript stacks under the player.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The transcript is the asset's WebVTT text track, fetched in full from `https://stream.mux.com/{playbackId}/text/{trackId}.vtt`. Playback must be public; signed playback isn't supported.
 
-## React Compiler
+## Running the demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. `npm install`
+2. Copy `.env.example` to `.env.local` and fill in:
+   - `VITE_MUX_PLAYBACK_ID`: a public playback ID.
+   - `VITE_MUX_TRACK_ID`: the ID of one of the asset's text tracks (see [Finding the track ID](#finding-the-track-id)).
+3. `npm run dev`, then open the URL it prints.
 
-## Expanding the Oxlint configuration
+The demo page has a width dropdown for trying the stacked layout and an accent color picker.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Using the widget
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```tsx
+import { TranscriptWidget } from './transcript/TranscriptWidget.tsx'
+
+<TranscriptWidget
+  playbackId="..."
+  trackId="..."
+  accentColor="#fa50b5"
+  metadata={{ video_title: 'My video' }}
+/>
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+| Prop | Description |
+|---|---|
+| `playbackId` | The asset's public playback ID. Required. |
+| `trackId` | The ID of the text track to show as the transcript. Required. |
+| `vttUrl` | Fetch the transcript from this URL instead of Mux's URL for `trackId`. |
+| `accentColor` | Colors both the player's controls and the transcript's highlight. |
+| `className`, `style` | Applied to the widget's root element, e.g. to set the theme variables below. |
+| Anything else | Passed through to Mux Player (`metadata`, `startTime`, `defaultHiddenCaptions`, …). |
+
+Mux Player also shows the captions on the video by default; pass `defaultHiddenCaptions` if the transcript is enough.
+
+### Theming
+
+Set these CSS custom properties on the widget or any ancestor. Each has a built-in default, so set only the ones you need.
+
+| Variable | Default | Controls |
+|---|---|---|
+| `--tw-accent` | `#fa50b5` | Highlight bar, focus rings, resume button (also set by `accentColor`) |
+| `--tw-active-bg` | accent at 16% | Background of the active line |
+| `--tw-panel-bg` | `transparent` | Transcript panel background |
+| `--tw-font` | inherited | Transcript font |
+| `--tw-radius` | `8px` | Corner radius of the player, panel and lines |
+| `--tw-stacked-panel-height` | `320px` | Transcript height in the stacked layout |
+
+### Layout
+
+The widget fills the width it's given. Side by side, the player takes two-thirds and the transcript one-third, and the transcript matches the player's height.
+
+The widget's root is a CSS size container, so it can't size itself to its content. Give it a width (normal block layout does), not a spot that shrinks to fit, such as an inline-block, a float, or an `auto` flex or grid track, where it collapses to zero width.
+
+### Finding the track ID
+
+Text track IDs come from the [Mux Asset API](https://www.mux.com/docs/api-reference), which needs your secret API credentials, so the widget doesn't look them up itself. From a server or your terminal:
+
+1. `GET https://api.mux.com/video/v1/playback-ids/{PLAYBACK_ID}` returns the asset ID in `data.object.id`.
+2. `GET https://api.mux.com/video/v1/assets/{ASSET_ID}` lists the asset's tracks in `data.tracks`. Use the `id` of one whose `type` is `"text"`.
+
+Both use HTTP Basic auth with an access token ID and secret from the Mux dashboard.
+
+## Development
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server with hot reload |
+| `npm test` | Run the tests once (`npm run test:watch` to watch) |
+| `npm run lint` | Lint with Oxlint |
+| `npm run build` | Type-check, then build to `dist/` |
+| `npm run preview` | Serve the built `dist/` |
+
+Run a single test with `npx vitest run src/path/file.test.ts -t "test name"`.
+
+Mux Player makes the bundle about 1.3 MB minified, so the build warns about chunk size. If that matters, `@mux/mux-player-react/lazy` loads the player on demand.
+
+### Code layout
+
+```
+src/
+  App.tsx                     demo page
+  transcript/
+    TranscriptWidget.tsx      the player and transcript, wired together
+    TranscriptPanel.tsx       scrollable transcript, resume button
+    TranscriptLine.tsx        one line (a button that seeks)
+    hooks/
+      useVttCues.ts           fetch and parse the .vtt
+      useActiveCueIndex.ts    which cue is active, from the player's time
+      useAutoScroll.ts        keep the active line in view, pause on manual scroll
+    lib/
+      parseVtt.ts             WebVTT text -> cues
+      findActiveCue.ts        binary search for the cue at a time
+      muxUrls.ts              Mux text-track URL
+      formatTime.ts           seconds -> m:ss / h:mm:ss
+```
+
+`PLAN.md` has the design decisions behind it and the history of how it was built.

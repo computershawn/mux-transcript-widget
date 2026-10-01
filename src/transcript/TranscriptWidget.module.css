@@ -1,0 +1,40 @@
+/* Theme: set --tw-* variables on the widget or any ancestor; the fallbacks
+   in var() are the defaults, so a host's values always win. */
+
+/* The container is the widget itself, so the layout follows the widget's
+   width rather than the screen's. */
+.widget {
+  container-type: inline-size;
+  font-family: var(--tw-font, inherit);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--tw-radius, 8px);
+}
+
+/* contain: size gives the panel no intrinsic height, so the player alone sets
+   the row height; the panel stretches to it and scrolls inside. */
+.panel {
+  min-width: 0;
+  contain: size;
+}
+
+@container (width < 700px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    height: var(--tw-stacked-panel-height, 320px);
+  }
+}

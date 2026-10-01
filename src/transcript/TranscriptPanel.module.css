@@ -1,0 +1,102 @@
+/* Theme: set these on the widget or any ancestor; the fallbacks are defaults. */
+
+.panel {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--tw-panel-bg, transparent);
+  border-radius: var(--tw-radius, 8px);
+  font-family: var(--tw-font, inherit);
+}
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.scroller:focus-visible {
+  outline: 2px solid var(--tw-accent, #fa50b5);
+  outline-offset: -2px;
+}
+
+.list {
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75em;
+  width: 100%;
+  padding: 0.5em 0.75em;
+  border: 0;
+  border-radius: calc(var(--tw-radius, 8px) - 2px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.line:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.line:focus-visible {
+  outline: 2px solid var(--tw-accent, #fa50b5);
+  outline-offset: -2px;
+}
+
+/* Keyed on aria-current so the visual and accessible state can't drift apart. */
+.line[aria-current='true'] {
+  background: var(--tw-active-bg, color-mix(in srgb, var(--tw-accent, #fa50b5) 16%, transparent));
+  box-shadow: inset 3px 0 0 var(--tw-accent, #fa50b5);
+}
+
+.time {
+  padding-top: 0.1em;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.65;
+}
+
+.resume {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 0.4em 0.9em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tw-accent, #fa50b5);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85em;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+  cursor: pointer;
+}
+
+.resume:focus-visible {
+  outline: 2px solid var(--tw-accent, #fa50b5);
+  outline-offset: 2px;
+}
+
+.message {
+  margin: 0;
+  padding: 1em;
+  opacity: 0.75;
+}
+
+.detail {
+  display: block;
+  margin-top: 0.25em;
+  font-size: 0.85em;
+}

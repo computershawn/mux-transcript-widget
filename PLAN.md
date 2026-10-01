@@ -46,8 +46,11 @@ Props for `TranscriptWidget`: `playbackId`, `trackId`, optional `vttUrl`, and pa
 
 ## Auto-scroll pause
 - **Programmatic scroll:** `container.scrollTo({top, behavior:'smooth'})`, with the offset computed so the active line sits about a third of the way down. We don't use `scrollIntoView`, because it also scrolls ancestor elements and the page.
-- **Detecting manual scrolling:** listen for user-intent events on the container: `wheel`, `touchstart`/`touchmove`, `pointerdown` on the scrollbar, and scroll keys. We deliberately don't use the `scroll` event, because our own programmatic scrolls fire it too. Any of these sets `paused = true`.
+- **Detecting manual scrolling:** listen for user-intent events on the container: `wheel`, `touchmove` (not `touchstart`, so a tap on a line doesn't pause), `pointerdown` on the container itself (its scrollbar or padding, not a line), and scroll keys (arrows, Page Up/Down, Home/End, and Space when the container itself has focus). We deliberately don't use the `scroll` event, because our own programmatic scrolls fire it too. Any of these sets `paused = true`.
 - **Resuming:** after 4s of no user-intent events, or when the user clicks "Resume auto-scroll" or a transcript line.
+  - The resume button scrolls to the active line straight away and moves focus to it (or to the scroll area if no line is active), since the button unmounts.
+  - Clicking a line resumes without scrolling; the scroll happens when the seek changes the active line, so the panel doesn't first jump back to the old one.
+  - While the resume button has focus the 4s timeout is held, so it can't vanish from under a keyboard user; it restarts on blur.
 - If the user never scrolls, the active line stays in view.
 
 ## Delivery
@@ -61,8 +64,8 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 | 2 | `transcript/s2-find-active-cue` | Merged (#5) |
 | 3 | `transcript/s3-vtt-fetch` | Merged (#6) |
 | 4 | `transcript/s4-transcript-panel` | Merged (#7) |
-| 5 | `transcript/s5-active-cue-sync` | In review |
-| 6 | `transcript/s6-auto-scroll` | To do |
+| 5 | `transcript/s5-active-cue-sync` | Merged (#8) |
+| 6 | `transcript/s6-auto-scroll` | In review |
 | 7 | `transcript/s7-widget` | To do |
 | 8 | `transcript/s8-demo` | To do |
 
@@ -85,7 +88,7 @@ Update the Status column in each step's PR.
 3. **`muxUrls` + `useVttCues`** + tests (mocked `fetch`): loading → ready, HTTP error → error state, the request is aborted when the URL changes, and a late response from a stale URL is ignored.
 4. **`TranscriptPanel` / `TranscriptLine`** (presentational), plus a `formatTime` helper for the timestamps, + tests: renders the lines, highlights `aria-current` for `activeIndex`, clicking calls `onSeek(cue.start)`, loading/error/empty states. Add `TranscriptPanel.module.css`, with the highlight keyed on `[aria-current="true"]`; tests query by role and `aria-current`, never by class name.
 5. **`useActiveCueIndex`** + tests: use a real `<video>` element, stub `currentTime` and dispatch events. Check that the active index updates on `seeked`/`timeupdate`, doesn't re-render while the index is unchanged, and that the rAF loop is cleaned up on `pause`, `ended` and unmount.
-6. **`useAutoScroll`** + tests (fake timers, spied `scrollTo`): scrolls when the active index changes, pauses on `wheel`/`touchstart`, resumes after 4s, and resumes immediately via the button or a seek. Wire it into `TranscriptPanel` with the "Resume auto-scroll" button.
+6. **`useAutoScroll`** + tests (fake timers, spied `scrollTo`): scrolls when the active index changes, pauses on `wheel`/`touchmove`, resumes after 4s, and resumes immediately via the button or a seek. Wire it into `TranscriptPanel` with the "Resume auto-scroll" button.
 7. **`TranscriptWidget` integration:**
    - Install `@mux/mux-player-react`.
    - Add `TranscriptWidget.module.css`: grid layout, the container-query stacked layout, and the panel matching the player's height (see Styling). The `accentColor` prop feeds both the player and `--tw-accent`.

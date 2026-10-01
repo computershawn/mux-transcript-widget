@@ -66,8 +66,8 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 | 4 | `transcript/s4-transcript-panel` | Merged (#7) |
 | 5 | `transcript/s5-active-cue-sync` | Merged (#8) |
 | 6 | `transcript/s6-auto-scroll` | Merged (#9) |
-| 7 | `transcript/s7-widget` | In review |
-| 8 | `transcript/s8-demo` | To do |
+| 7 | `transcript/s7-widget` | Merged (#10) |
+| 8 | `transcript/s8-demo` | In review |
 
 Update the Status column in each step's PR.
 
@@ -95,6 +95,7 @@ Update the Status column in each step's PR.
    - In tests, mock it as a forwardRef `<video>` so we can drive `currentTime` and events. Verify end to end: fetch → render → time change → highlight moves → click → `currentTime` is set.
 8. **Demo page:**
    - Replace the template `App.tsx` with the widget, reading `VITE_MUX_PLAYBACK_ID` / `VITE_MUX_TRACK_ID` from `.env.local` (already gitignored via `*.local`). Add `.env.example`.
+   - The page shows setup instructions when either variable is missing, and has a width dropdown (320–1120px) and an accent color picker for the stacking and `accentColor` checks below. `src/vite-env.d.ts` types the two variables.
    - Delete the template's `App.css`, images and `public/icons.svg`, and trim `index.css` to page-level styles.
 
 ## Verification

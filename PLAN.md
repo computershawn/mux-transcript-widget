@@ -67,7 +67,8 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 | 5 | `transcript/s5-active-cue-sync` | Merged (#8) |
 | 6 | `transcript/s6-auto-scroll` | Merged (#9) |
 | 7 | `transcript/s7-widget` | Merged (#10) |
-| 8 | `transcript/s8-demo` | In review |
+| 8 | `transcript/s8-demo` | Merged (#11) |
+| Final merge into `main` | `feature/transcript-widget` | Merged (#12) |
 
 Update the Status column in each step's PR.
 

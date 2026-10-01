@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Vite `react-ts` app (React 19, TypeScript ~6, Vite 8) that is being built into a Mux player + synced transcript widget. `PLAN.md` holds the approved design, the build steps, and a Delivery table showing which steps are merged. Don't assume Mux SDKs, a test framework, or any other dependencies are installed — check `package.json` before using one.
+Vite `react-ts` app (React 19, TypeScript ~6, Vite 8) containing a Mux player + synced transcript widget (`src/transcript/`) and a demo page (`src/App.tsx`). Every step in `PLAN.md` is merged into `main`; the plan still records the design and its Delivery table the PR history. Check `package.json` before using a dependency rather than assuming it's installed.
 
 ## Commands
 

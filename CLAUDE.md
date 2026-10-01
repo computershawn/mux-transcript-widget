@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Vite `react-ts` app (React 19, TypeScript ~6, Vite 8) containing a Mux player + synced transcript widget (`src/transcript/`) and a demo page (`src/App.tsx`). Every step in `PLAN.md` is merged into `main`; the plan still records the design and its Delivery table the PR history. Check `package.json` before using a dependency rather than assuming it's installed.
+Vite `react-ts` app (React 19, TypeScript ~6, Vite 8) containing a Mux player + synced transcript widget (`src/transcript/`) and a demo page (`src/App.tsx`). The widget is finished; its plan, with the design and the PR history, is archived in `docs/plans/transcript-widget.md`. `PLAN.md` is the plan for the current feature (a video playlist on the demo page). Check `package.json` before using a dependency rather than assuming it's installed.
 
 ## Commands
 
@@ -19,10 +19,11 @@ Vitest config lives in `vite.config.ts` (`test` key, jsdom environment). `src/te
 
 ## Workflow
 
-The widget is delivered as a series of small PRs, one per `PLAN.md` step, so each can be reviewed on its own.
+Each feature is delivered as a series of small PRs, one per `PLAN.md` step, so each can be reviewed on its own. The feature and step branch names are listed in `PLAN.md`'s Delivery table.
 
-- `feature/transcript-widget` is cut from `main`. Step PRs merge into it; when every step is done, one final PR merges it into `main`.
-- Each step gets a branch named `transcript/s<N>-<slug>` (the names are listed in `PLAN.md`), cut from the up-to-date feature branch, with its PR targeting `feature/transcript-widget`. Step branches can't live under `feature/transcript-widget/…`, because git can't have a branch named both `feature/transcript-widget` and `feature/transcript-widget/<something>`.
+- The feature branch (`feature/<name>`, e.g. `feature/video-playlist`) is cut from `main`. Step PRs merge into it; when every step is done, one final PR merges it into `main`.
+- Each step gets its own branch (e.g. `playlist/s<N>-<slug>`), cut from the up-to-date feature branch, with its PR targeting the feature branch. Step branches can't live under `feature/<name>/…`, because git can't have a branch named both `feature/<name>` and `feature/<name>/<something>`.
+- When a feature is finished, move its plan to `docs/plans/<feature>.md` and start the next feature's `PLAN.md`.
 - Do **one step at a time**, and have the user review it locally before anything is pushed:
   1. Create the step branch, implement the step, and make sure tests, lint and build pass.
   2. Stage the changes (`git add`) and **stop without committing or pushing**. The user reviews the staged diff in VS Code's Source Control view (or with `git diff --cached`).

@@ -23,13 +23,13 @@ src/transcript/
   TranscriptLine.tsx       memoized <button> per cue; aria-current when active; shows timestamp
   TranscriptWidget.tsx     layout; renders <MuxPlayer> (@mux/mux-player-react) + panel; wires ref, time, seek
 ```
-Props for `TranscriptWidget`: `playbackId`, `trackId`, optional `vttUrl`, and pass-through player props such as `metadata`.
+Props for `TranscriptWidget`: `playbackId`, `trackId`, optional `vttUrl` and `accentColor`, and pass-through player props such as `metadata`. `className` and `style` apply to the widget's root (e.g. to set the `--tw-*` variables), not the player.
 
 ## Styling
 - **CSS Modules** (built into Vite, nothing to install): `TranscriptWidget.module.css` for layout and theme variables, `TranscriptPanel.module.css` for lines, the highlight and the resume button. Scoped class names keep the widget's CSS and the host page's CSS from colliding. The demo keeps a minimal global `index.css`; the template's `App.css` is deleted.
 - **Theme via custom properties** on the widget root or any ancestor: `--tw-accent`, `--tw-active-bg`, `--tw-panel-bg`, `--tw-font`, `--tw-radius`, `--tw-stacked-panel-height`. Defaults live in `var()` fallbacks so a host's values always win. Mux Player reads its accent from its own shadow-DOM theme, not from an inherited variable, so the widget's `accentColor` prop sets both the player's `accentColor` and `--tw-accent`.
 - **Active-line style** comes from `[aria-current="true"]`, not a separate class, so the visual and accessibility state can't drift apart.
-- **Layout:** the root sets `container-type: inline-size`. By default it's a grid with the player column set by `aspect-ratio: 16/9`. The panel's wrapper has `contain: size`, so the player alone sets the row height and the panel scrolls inside it with no JavaScript measuring. `@container (width < 700px)` stacks the player and panel, driven by the widget's own width rather than the screen's.
+- **Layout:** the root sets `container-type: inline-size`. By default it's a two-column grid (player 2fr, panel 1fr) with the player's height set by `aspect-ratio: 16/9`. The panel's wrapper has `contain: size`, so the player alone sets the row height and the panel scrolls inside it with no JavaScript measuring. `@container (width < 700px)` stacks the player and panel, driven by the widget's own width rather than the screen's; stacked, the panel is `--tw-stacked-panel-height` tall (default 320px).
 - **Reduced motion:** smooth scrolling only under `prefers-reduced-motion: no-preference`. `useAutoScroll` reads the same media query to choose `behavior: 'smooth' | 'auto'`.
 
 ## Time → cue sync
@@ -65,8 +65,8 @@ Each step below ships as its own PR into `feature/transcript-widget`, one at a t
 | 3 | `transcript/s3-vtt-fetch` | Merged (#6) |
 | 4 | `transcript/s4-transcript-panel` | Merged (#7) |
 | 5 | `transcript/s5-active-cue-sync` | Merged (#8) |
-| 6 | `transcript/s6-auto-scroll` | In review |
-| 7 | `transcript/s7-widget` | To do |
+| 6 | `transcript/s6-auto-scroll` | Merged (#9) |
+| 7 | `transcript/s7-widget` | In review |
 | 8 | `transcript/s8-demo` | To do |
 
 Update the Status column in each step's PR.

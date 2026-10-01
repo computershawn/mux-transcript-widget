@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@mux/mux-player-react": "^3.13.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

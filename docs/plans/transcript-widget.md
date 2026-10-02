@@ -1,5 +1,7 @@
 # Plan: Mux player + synced transcript widget
 
+> Archived: every step below is merged into `main`. This was `PLAN.md` while the widget was being built; file paths and commands in it are as they were then.
+
 ## Context
 The repo is an unmodified Vite React-TS template (see `CLAUDE.md`). We're building a widget with a Mux player and a transcript panel beside it:
 - The active cue is highlighted and stays in sync with playback.

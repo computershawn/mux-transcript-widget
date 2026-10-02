@@ -88,6 +88,23 @@ describe('TranscriptWidget', () => {
     expect(lastPlayerProps()).toMatchObject({ playbackId: 'play123' })
   })
 
+  test('loads the new transcript when the video changes', async () => {
+    fetchMock.mockImplementation(async (url: string) =>
+      new Response(url.includes('track2') ? 'WEBVTT\n\n00:00.000 --> 00:03.000\nOther video\n' : VTT),
+    )
+    const { rerender } = render(<TranscriptWidget playbackId="play1" trackId="track1" />)
+    await screen.findByRole('button', { name: /First line/ })
+
+    rerender(<TranscriptWidget playbackId="play2" trackId="track2" />)
+    expect(await screen.findByRole('button', { name: /Other video/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /First line/ })).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      'https://stream.mux.com/play2/text/track2.vtt',
+      expect.anything(),
+    )
+    expect(lastPlayerProps()).toMatchObject({ playbackId: 'play2' })
+  })
+
   test('fetches from vttUrl when given', async () => {
     render(<TranscriptWidget playbackId="p" trackId="t" vttUrl="/captions.vtt" />)
     await screen.findByRole('button', { name: /First line/ })
@@ -121,6 +138,16 @@ describe('TranscriptWidget', () => {
     // The player then reports the seek, and the highlight follows.
     player.seekTo(player.time)
     expect(screen.getByRole('button', { current: true })).toHaveTextContent('Third line')
+  })
+
+  test('clicking a line clears the poster, so the new frame shows before playback starts', async () => {
+    render(<TranscriptWidget playbackId="p" trackId="t" poster="https://example.com/poster.jpg" />)
+    await screen.findByRole('button', { name: /First line/ })
+    expect(lastPlayerProps()).toMatchObject({ poster: 'https://example.com/poster.jpg' })
+
+    controlPlayer()
+    await userEvent.click(screen.getByRole('button', { name: /Second line/ }))
+    expect(lastPlayerProps()).toMatchObject({ poster: '' })
   })
 
   test('accentColor colors both the player and the transcript', async () => {

@@ -12,12 +12,11 @@ The transcript is the asset's WebVTT text track, fetched in full from `https://s
 ## Running the demo
 
 1. `npm install`
-2. Copy `.env.example` to `.env.local` and fill in:
-   - `VITE_MUX_PLAYBACK_ID`: a public playback ID.
-   - `VITE_MUX_TRACK_ID`: the ID of one of the asset's text tracks (see [Finding the track ID](#finding-the-track-id)).
-3. `npm run dev`, then open the URL it prints.
+2. `npm run dev`, then open the URL it prints.
 
-The demo page has a width dropdown for trying the stacked layout and an accent color picker.
+The demo page shows the widget at up to 960px wide, with a `#6600ff` accent, and a row of video thumbnails under it. The first video loads on mount; clicking a thumbnail loads that video and its transcript.
+
+The videos are listed in `src/videos.ts`, each with a public playback ID, a text track ID (see [Finding the track ID](#finding-the-track-id)), a title and a credit line. To use your own, edit that list.
 
 ## Using the widget
 
@@ -90,6 +89,8 @@ Mux Player makes the bundle about 1.3 MB minified, so the build warns about chun
 ```
 src/
   App.tsx                     demo page
+  VideoPicker.tsx             demo's grid of video thumbnails
+  videos.ts                   demo's list of videos
   transcript/
     TranscriptWidget.tsx      the player and transcript, wired together
     TranscriptPanel.tsx       scrollable transcript, resume button
@@ -101,8 +102,8 @@ src/
     lib/
       parseVtt.ts             WebVTT text -> cues
       findActiveCue.ts        binary search for the cue at a time
-      muxUrls.ts              Mux text-track URL
+      muxUrls.ts              Mux text-track and thumbnail URLs
       formatTime.ts           seconds -> m:ss / h:mm:ss
 ```
 
-`PLAN.md` has the design decisions behind it and the history of how it was built.
+`docs/plans/` has the design decisions behind the widget (`transcript-widget.md`) and the demo's video playlist (`video-playlist.md`), and the history of how each was built.

@@ -1,26 +1,31 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
+import { thumbnailUrl } from './transcript/lib/muxUrls.ts'
 import { TranscriptWidget } from './transcript/TranscriptWidget.tsx'
+import { VIDEOS } from './videos.ts'
+import { VideoPicker } from './VideoPicker.tsx'
+import type { PickerVideo } from './VideoPicker.tsx'
 
-const playbackId = import.meta.env.VITE_MUX_PLAYBACK_ID
-const trackId = import.meta.env.VITE_MUX_TRACK_ID
+const ACCENT_COLOR = '#6600ff'
+const WIDGET_WIDTH = 960
 
-const DEFAULT_ACCENT = '#fa50b5'
-/** Widths to try the widget at; under 700px it stacks. */
-const WIDTHS = [320, 480, 640, 800, 960, 1120]
+const PICKER_VIDEOS: PickerVideo[] = VIDEOS.map((video) => ({
+  id: video.playbackId,
+  title: video.title,
+  thumbnailUrl: thumbnailUrl(video.playbackId, { width: 480 }),
+}))
 
-/** Demo page: the widget, plus controls for checking the stacked layout and
- * the accent color by hand. */
+/** Demo page: the widget, with a picker of videos under it. */
 function App() {
-  const [width, setWidth] = useState(960)
-  const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT)
+  const [selectedId, setSelectedId] = useState(VIDEOS[0]?.playbackId)
+  const video = VIDEOS.find((candidate) => candidate.playbackId === selectedId)
 
-  if (!playbackId || !trackId) {
+  if (!video) {
     return (
       <main>
         <h1>Transcript Widget with Mux Video</h1>
         <p>
-          Set <code>VITE_MUX_PLAYBACK_ID</code> and <code>VITE_MUX_TRACK_ID</code> in{' '}
-          <code>.env.local</code> (see <code>.env.example</code>), then restart the dev server.
+          Add a video to <code>src/videos.ts</code> to try the widget.
         </p>
       </main>
     )
@@ -29,33 +34,25 @@ function App() {
   return (
     <main>
       <h1>Transcript Widget with Mux Video</h1>
-      <form className="controls" onSubmit={(event) => event.preventDefault()}>
-        <label>
-          Widget width
-          <select value={width} onChange={(event) => setWidth(Number(event.target.value))}>
-            {WIDTHS.map((value) => (
-              <option key={value} value={value}>
-                {value}px
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Accent color
-          <input
-            type="color"
-            value={accentColor}
-            onChange={(event) => setAccentColor(event.target.value)}
-          />
-        </label>
-      </form>
-      <div style={{ maxWidth: width }}>
+      {/* --tw-accent here, not just on the widget, so the picker shares it. */}
+      <div style={{ maxWidth: WIDGET_WIDTH, '--tw-accent': ACCENT_COLOR } as CSSProperties}>
+        {/* Keyed so each video gets a fresh widget: auto-scroll unpaused, the
+            transcript scrolled to the top and the poster back. */}
         <TranscriptWidget
-          playbackId={playbackId}
-          trackId={trackId}
-          accentColor={accentColor}
-          metadata={{ video_title: 'Transcript widget demo' }}
+          key={video.playbackId}
+          playbackId={video.playbackId}
+          trackId={video.trackId}
+          accentColor={ACCENT_COLOR}
+          metadata={{ video_title: video.title }}
         />
+        <VideoPicker videos={PICKER_VIDEOS} selectedId={selectedId} onSelect={setSelectedId} />
+        <ul className="credits" aria-label="Video credits">
+          {VIDEOS.map(({ playbackId, title, credit }) => (
+            <li key={playbackId}>
+              {title}: {credit}
+            </li>
+          ))}
+        </ul>
       </div>
     </main>
   )

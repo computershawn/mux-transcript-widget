@@ -45,20 +45,3 @@ code {
   font-family: ui-monospace, Consolas, monospace;
   font-size: 0.9em;
 }
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  margin-bottom: 16px;
-}
-
-.controls label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.controls select {
-  font: inherit;
-}

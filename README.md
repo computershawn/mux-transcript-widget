@@ -17,7 +17,7 @@ The transcript is the asset's WebVTT text track, fetched in full from `https://s
    - `VITE_MUX_TRACK_ID`: the ID of one of the asset's text tracks (see [Finding the track ID](#finding-the-track-id)).
 3. `npm run dev`, then open the URL it prints.
 
-The demo page has a width dropdown for trying the stacked layout and an accent color picker.
+The demo page shows the widget at up to 960px wide, with a `#6600ff` accent.
 
 ## Using the widget
 

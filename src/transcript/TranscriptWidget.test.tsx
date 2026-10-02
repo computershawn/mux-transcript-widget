@@ -123,6 +123,16 @@ describe('TranscriptWidget', () => {
     expect(screen.getByRole('button', { current: true })).toHaveTextContent('Third line')
   })
 
+  test('clicking a line clears the poster, so the new frame shows before playback starts', async () => {
+    render(<TranscriptWidget playbackId="p" trackId="t" poster="https://example.com/poster.jpg" />)
+    await screen.findByRole('button', { name: /First line/ })
+    expect(lastPlayerProps()).toMatchObject({ poster: 'https://example.com/poster.jpg' })
+
+    controlPlayer()
+    await userEvent.click(screen.getByRole('button', { name: /Second line/ }))
+    expect(lastPlayerProps()).toMatchObject({ poster: '' })
+  })
+
   test('accentColor colors both the player and the transcript', async () => {
     const { container } = render(
       <TranscriptWidget playbackId="p" trackId="t" accentColor="#00ff00" style={{ maxWidth: 900 }} />,

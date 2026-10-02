@@ -35,6 +35,7 @@ export function TranscriptWidget({
   trackId,
   vttUrl,
   accentColor,
+  poster,
   className,
   style,
   ...playerProps
@@ -51,8 +52,14 @@ export function TranscriptWidget({
   const { status, cues, error } = useVttCues(vttUrl ?? muxVttUrl(playbackId, trackId))
   const activeIndex = useActiveCueIndex(player, cues)
 
+  // Mux Player covers the video with its poster until playback first
+  // starts, so a seek before then wouldn't show the new frame. Clearing the
+  // poster on a transcript seek reveals it.
+  const [hasSeeked, setHasSeeked] = useState(false)
+
   const handleSeek = useCallback((time: number) => {
     if (playerRef.current) playerRef.current.currentTime = time + SEEK_OFFSET
+    setHasSeeked(true)
   }, [])
 
   // Mux Player takes its accent from a prop, not an inherited variable, so
@@ -67,6 +74,7 @@ export function TranscriptWidget({
           ref={attachPlayer}
           className={styles.player}
           playbackId={playbackId}
+          poster={hasSeeked ? '' : poster}
           accentColor={accentColor}
         />
         <div className={styles.panel}>

@@ -106,4 +106,4 @@ src/
       formatTime.ts           seconds -> m:ss / h:mm:ss
 ```
 
-`docs/plans/transcript-widget.md` has the widget's design decisions and the history of how it was built. `PLAN.md` is the plan for the work in progress.
+`docs/plans/` has the design decisions behind the widget (`transcript-widget.md`) and the demo's video playlist (`video-playlist.md`), and the history of how each was built.

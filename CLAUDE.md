@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Vite `react-ts` app (React 19, TypeScript ~6, Vite 8) containing a Mux player + synced transcript widget (`src/transcript/`) and a demo page (`src/App.tsx`). The widget is finished; its plan, with the design and the PR history, is archived in `docs/plans/transcript-widget.md`. `PLAN.md` is the plan for the current feature (a video playlist on the demo page). Check `package.json` before using a dependency rather than assuming it's installed.
+Vite `react-ts` app (React 19, TypeScript ~6, Vite 8) containing a Mux player + synced transcript widget (`src/transcript/`) and a demo page (`src/App.tsx`). The widget and the demo's video playlist are finished; their plans, with the designs and PR histories, are archived in `docs/plans/`. There's no `PLAN.md` until the next feature starts. Check `package.json` before using a dependency rather than assuming it's installed.
 
 ## Commands
 

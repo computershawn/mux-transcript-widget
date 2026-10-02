@@ -1,5 +1,7 @@
 # Plan: Video playlist for the demo page
 
+> Archived: every step below is merged. This was `PLAN.md` while the playlist was being built; file paths and commands in it are as they were then.
+
 ## Context
 The demo page (`src/App.tsx`) plays one video, whose IDs come from `VITE_MUX_PLAYBACK_ID` and `VITE_MUX_TRACK_ID`. We're replacing that with a list of videos:
 - The first video in the list loads on mount.
@@ -28,10 +30,12 @@ Each step below ships as its own PR into `feature/video-playlist`, one at a time
 |---|---|---|
 | 0 | `playlist/plan-and-workflow` | Merged (#14) |
 | 1 | `playlist/s1-picker-ui` | Merged (#15) |
-| 2 | `playlist/s2-switching` | In review |
-| Final merge into `main` | `feature/video-playlist` | Not started |
+| 2 | `playlist/s2-switching` | Merged (#16) |
+| Final merge into `main` | `feature/video-playlist` | Merged |
 
 Update the Status column in each step's PR.
+
+One fix outside the steps went straight onto `feature/video-playlist` (22f52dd): clicking a transcript line before the video has played now clears the player's poster, so the seeked frame shows.
 
 ## Steps
 0. **Plan + workflow docs:**

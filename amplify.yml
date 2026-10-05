@@ -1,0 +1,21 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Vite 8 needs Node 20.19+ or 22.12+; see .nvmrc.
+        - nvm install
+        - nvm use
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        # No CI, so a failing test stops the deploy here.
+        - npm test
+        - npm run build
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .npm/**/*

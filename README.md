@@ -82,6 +82,10 @@ Both use HTTP Basic auth with an access token ID and secret from the Mux dashboa
 
 Run a single test with `npx vitest run src/path/file.test.ts -t "test name"`.
 
+### Deploying
+
+The demo deploys to AWS Amplify Hosting. `amplify.yml` sets the build: Node from `.nvmrc`, `npm ci`, then `npm test` and `npm run build`, serving `dist/`. The build needs no environment variables, since the video IDs are public and live in `src/videos.ts`. Don't add Mux API tokens to Amplify: the app never calls the Mux API, and any `VITE_` variable is built into the JavaScript sent to the browser.
+
 Mux Player makes the bundle about 1.3 MB minified, so the build warns about chunk size. If that matters, `@mux/mux-player-react/lazy` loads the player on demand.
 
 ### Code layout
